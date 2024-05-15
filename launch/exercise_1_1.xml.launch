@@ -1,0 +1,51 @@
+<launch>
+  <arg name="robot"  default="full_ft_hey5"/>
+  <arg name="gzpose" default="-x 0.0 -y 0.0 -z 0.85 -R 0.0 -P 0.0 -Y 0.0"/>
+  <arg name="gui" default="true"/>
+  <arg name="debug" default="false"/>
+  <arg name="head_version" default="v0"/>
+  <arg name="leg_version"  default="v0"/>
+  <arg name="simulation"  default="false"/>
+
+  <env name="GAZEBO_MODEL_PATH" value="$(find reemc_gazebo)/models:$(optenv GAZEBO_MODEL_PATH)"/>
+
+  <!-- start up world -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find reemc_gazebo)/worlds/empty.world"/>
+    <arg name="gui" value="$(arg gui)"/>
+    <arg name="debug" value="$(arg debug)"/>
+  </include>
+
+  <!-- Pal hardware gazebo parameters -->
+  <rosparam command="load" file="$(find reemc_controller_configuration_gazebo)/config/reemc_pal_hardware_gazebo.yaml"/>
+
+  <!-- PID gains -->
+  <rosparam command="load" file="$(find reemc_controller_configuration_gazebo)/config/pids.yaml"/>
+
+  <!-- Walking controller parameters -->
+  <include file="$(find reemc_controller_configuration_gazebo)/launch/load_walking_params.launch"/>
+
+  <!-- Joint trajectory controllers -->
+  <rosparam command="load" file="$(find reemc_controller_configuration_gazebo)/config/joint_trajectory_controllers.yaml"/>
+  <rosparam command="load"
+            file="$(find reemc_controller_configuration_gazebo)/config/hand_$(arg robot)_controllers.yaml" />
+
+  <!-- Joystick controller parameters -->
+  <rosparam file="$(find reemc_gazebo)/config/joy_teleop_sim.yaml" command="load"/>
+
+  <!-- Robot model -->
+  
+  <!-- Robot description -->
+  <param name="robot_description" command="cat '$(find loco_exercises)/urdf/reemc_full_ft_hey5.urdf'"/>
+
+  <!-- Joint limits -->
+  <rosparam command="load" file="$(find reemc_description)/config/joint_limits.yaml"/>
+
+  <!-- Spawn robot in Gazebo -->
+  <node pkg="gazebo_ros" type="spawn_model" name="spawn_model"
+    args="-urdf -param robot_description $(arg gzpose) -model reemc_$(arg robot)" />
+  <!-- bring up robot -->
+  <include file="$(find reemc_bringup)/launch/reemc_bringup.launch">
+    <arg name="robot"  value="$(arg robot)"/>
+  </include>
+</launch>
