@@ -1842,14 +1842,14 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://reemc_description/meshes/arm/arm_2.dae" scale="1 2 1.0"/>
+        <mesh filename="package://reemc_description/meshes/arm/arm_2.dae" scale="1 1 1.0"/>
       </geometry>
       <material name="DarkGrey"/>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://reemc_description/meshes/arm/arm_2_collision.stl" scale="1 2 1.0"/>
+        <mesh filename="package://reemc_description/meshes/arm/arm_2_collision.stl" scale="1 1 1.0"/>
       </geometry>
     </collision>
   </link>
@@ -1873,21 +1873,21 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://reemc_description/meshes/arm/arm_3.dae" scale="1 1 2.0"/>
+        <mesh filename="package://reemc_description/meshes/arm/arm_3.dae" scale="1 1 1.0"/>
       </geometry>
       <material name="DarkGrey"/>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://reemc_description/meshes/arm/arm_3_collision.stl" scale="1 1 2.0"/>
+        <mesh filename="package://reemc_description/meshes/arm/arm_3_collision.stl" scale="1 1 1.0"/>
       </geometry>
     </collision>
   </link>
   <joint name="arm_left_3_joint" type="revolute">
     <parent link="arm_left_2_link"/>
     <child link="arm_left_3_link"/>
-    <origin rpy="-1.57079632679 0 0" xyz="0.02 -0.3 0"/>
+    <origin rpy="-1.57079632679 0 0" xyz="0.02 -0.142 0"/>
     <axis xyz="0 0 1"/>
     <limit effort="17.86" lower="-2.35619449019" upper="2.74889357189" velocity="4.58"/>
     <dynamics damping="1.0" friction="1.0"/>
@@ -1908,21 +1908,21 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://reemc_description/meshes/arm/arm_4.dae" scale="2 1 1.0"/>
+        <mesh filename="package://reemc_description/meshes/arm/arm_4.dae" scale="1 1 1.0"/>
       </geometry>
       <material name="DarkGrey"/>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://reemc_description/meshes/arm/arm_4_collision.stl" scale="2 1 1.0"/>
+        <mesh filename="package://reemc_description/meshes/arm/arm_4_collision.stl" scale="1 1 1.0"/>
       </geometry>
     </collision>
   </link>
   <joint name="arm_left_4_joint" type="revolute">
     <parent link="arm_left_3_link"/>
     <child link="arm_left_4_link"/>
-    <origin rpy="0 -1.57079632679 0" xyz="0 -0.02 -0.17"/>
+    <origin rpy="0 -1.57079632679 0" xyz="0 -0.02 -0.088"/>
     <axis xyz="0 0 1"/>
     <limit effort="17.86" lower="0" upper="2.26892802759" velocity="4.58"/>
     <dynamics damping="1.0" friction="1.0"/>
@@ -1971,21 +1971,21 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://reemc_description/meshes/arm/arm_5.dae" scale="1 1 2.0"/>
+        <mesh filename="package://reemc_description/meshes/arm/arm_5.dae" scale="1 1 1.0"/>
       </geometry>
       <material name="LightGrey"/>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://reemc_description/meshes/arm/arm_5_collision.stl" scale="1 1 2.0"/>
+        <mesh filename="package://reemc_description/meshes/arm/arm_5_collision.stl" scale="1 1 1.0"/>
       </geometry>
     </collision>
   </link>
   <joint name="arm_left_5_joint" type="revolute">
     <parent link="arm_left_4_link"/>
     <child link="arm_left_5_link"/>
-    <origin rpy="0 1.57079632679 0" xyz="-0.17 0.02 0"/>
+    <origin rpy="0 1.57079632679 0" xyz="-0.088 0.02 0"/>
     <axis xyz="0 0 1"/>
     <limit effort="3" lower="-2.09439510239" upper="2.09439510239" velocity="1.95"/>
     <!--TODO: Check effort value!-->
@@ -2004,7 +2004,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="package://reemc_description/meshes/arm/arm_6.dae" scale="1 2 1.0"/>
+        <mesh filename="package://reemc_description/meshes/arm/arm_6.dae" scale="1 1 1.0"/>
       </geometry>
       <material name="LightGrey"/>
     </visual>
@@ -2018,7 +2018,7 @@
   <joint name="arm_left_6_joint" type="revolute">
     <parent link="arm_left_5_link"/>
     <child link="arm_left_6_link"/>
-    <origin rpy="1.57079632679 0 0" xyz="0 0 -0.3"/>
+    <origin rpy="1.57079632679 0 0" xyz="0 0 -0.15"/>
     <axis xyz="0 0 1"/>
     <limit effort="6.6" lower="-1.41371669412" upper="1.41371669412" velocity="1.76"/>
     <dynamics damping="1.0" friction="1.0"/>
