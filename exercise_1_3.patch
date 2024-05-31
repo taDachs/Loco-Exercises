@@ -1,0 +1,123 @@
+diff --git a/config/controllers_full_ft_hey5.yaml b/config/controllers_full_ft_hey5.yaml
+index 73c16fd..7f14019 100644
+--- a/config/controllers_full_ft_hey5.yaml
++++ b/config/controllers_full_ft_hey5.yaml
+@@ -68,3 +68,25 @@ controller_list:
+       - hand_right_middle_1_joint
+       - hand_right_middle_2_joint
+       - hand_right_middle_3_joint
++  - name: right_leg_controller
++    action_ns: follow_joint_trajectory
++    type: FollowJointTrajectory
++    default: true
++    joints:
++      - leg_right_1_joint
++      - leg_right_2_joint
++      - leg_right_3_joint
++      - leg_right_4_joint
++      - leg_right_5_joint
++      - leg_right_6_joint
++  - name: left_leg_controller
++    action_ns: follow_joint_trajectory
++    type: FollowJointTrajectory
++    default: true
++    joints:
++      - leg_left_1_joint
++      - leg_left_2_joint
++      - leg_left_3_joint
++      - leg_left_4_joint
++      - leg_left_5_joint
++      - leg_left_6_joint
+diff --git a/config/kinematics.yaml b/config/kinematics.yaml
+index e0884ca..1804731 100644
+--- a/config/kinematics.yaml
++++ b/config/kinematics.yaml
+@@ -18,3 +18,13 @@ right_arm_torso:
+   kinematics_solver_search_resolution: 0.005
+   kinematics_solver_timeout: 0.005
+   kinematics_solver_attempts: 3
++right_leg:
++  kinematics_solver: kdl_kinematics_plugin/KDLKinematicsPlugin
++  kinematics_solver_search_resolution: 0.005
++  kinematics_solver_timeout: 0.005
++  kinematics_solver_attempts: 3
++left_leg:
++  kinematics_solver: kdl_kinematics_plugin/KDLKinematicsPlugin
++  kinematics_solver_search_resolution: 0.005
++  kinematics_solver_timeout: 0.005
++  kinematics_solver_attempts: 3
+diff --git a/config/ompl_planning.yaml b/config/ompl_planning.yaml
+index 27a5f73..f66c68b 100644
+--- a/config/ompl_planning.yaml
++++ b/config/ompl_planning.yaml
+@@ -124,4 +124,30 @@ both_arms:
+     - RRTstarkConfigDefault
+     - TRRTkConfigDefault
+     - PRMkConfigDefault
+-    - PRMstarkConfigDefault
+\ No newline at end of file
++    - PRMstarkConfigDefault
++left_leg:
++  planner_configs:
++    - SBLkConfigDefault
++    - ESTkConfigDefault
++    - LBKPIECEkConfigDefault
++    - BKPIECEkConfigDefault
++    - KPIECEkConfigDefault
++    - RRTkConfigDefault
++    - RRTConnectkConfigDefault
++    - RRTstarkConfigDefault
++    - TRRTkConfigDefault
++    - PRMkConfigDefault
++    - PRMstarkConfigDefault
++right_leg:
++  planner_configs:
++    - SBLkConfigDefault
++    - ESTkConfigDefault
++    - LBKPIECEkConfigDefault
++    - BKPIECEkConfigDefault
++    - KPIECEkConfigDefault
++    - RRTkConfigDefault
++    - RRTConnectkConfigDefault
++    - RRTstarkConfigDefault
++    - TRRTkConfigDefault
++    - PRMkConfigDefault
++    - PRMstarkConfigDefault
+diff --git a/config/reemc_full_ft_hey5.srdf b/config/reemc_full_ft_hey5.srdf
+index 51cbd7a..05b0417 100644
+--- a/config/reemc_full_ft_hey5.srdf
++++ b/config/reemc_full_ft_hey5.srdf
+@@ -31,6 +31,24 @@
+         <joint name="arm_left_7_joint" />
+         <joint name="wrist_left_tool_joint" />
+     </group>
++    <group name="left_leg">
++        <joint name="leg_left_1_joint" />
++        <joint name="leg_left_2_joint" />
++        <joint name="leg_left_3_joint" />
++        <joint name="leg_left_4_joint" />
++        <joint name="leg_left_5_joint" />
++        <joint name="leg_left_6_joint" />
++        <joint name="left_sole_joint" />
++    </group>
++    <group name="right_leg">
++        <joint name="leg_right_1_joint" />
++        <joint name="leg_right_2_joint" />
++        <joint name="leg_right_3_joint" />
++        <joint name="leg_right_4_joint" />
++        <joint name="leg_right_5_joint" />
++        <joint name="leg_right_6_joint" />
++        <joint name="right_sole_joint" />
++    </group>
+     <group name="left_hand">
+         <joint name="hand_left_grasping_fixed_joint" />
+         <joint name="hand_left_index_abd_joint" />
+@@ -219,6 +237,8 @@
+     <!--END EFFECTOR: Purpose: Represent information about an end effector.-->
+     <end_effector name="left_eef" parent_link="wrist_left_ft_tool_link" group="left_hand" />
+     <end_effector name="right_eef" parent_link="wrist_right_ft_tool_link" group="right_hand" />
++    <end_effector name="left_leg_eef" parent_link="left_sole_link" group="left_leg" />
++    <end_effector name="right_leg_eef" parent_link="right_sole_link" group="right_leg" />
+     <!--VIRTUAL JOINT: Purpose: this element defines a virtual joint between a robot link and an external frame of reference (considered fixed with respect to the robot)-->
+     <virtual_joint name="virtual_joint_right" type="planar" parent_frame="odom_right" child_link="right_sole_link" />
+     <virtual_joint name="virtual_joint_left" type="planar" parent_frame="odom_left" child_link="left_sole_link" />
