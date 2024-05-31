@@ -1,0 +1,85 @@
+#!/usr/bin/env python3
+import rospy
+
+import math
+import actionlib
+from typing import Tuple, List
+import time
+
+from control_msgs.msg import (
+    FollowJointTrajectoryAction,
+    FollowJointTrajectoryGoal,
+    FollowJointTrajectoryResult,
+)
+
+from trajectory_msgs.msg import (     
+    JointTrajectory,
+    JointTrajectoryPoint,
+)
+
+def deg_to_rad(x: float) -> float:
+    return x / 180.0 * math.pi
+
+
+def connect_client(controller_name: str) -> Tuple[actionlib.SimpleActionClient, List[str]]:
+    rospy.loginfo(f"Connecting {controller_name}")
+    client = actionlib.SimpleActionClient(controller_name + "/follow_joint_trajectory", FollowJointTrajectoryAction)
+    if not client.wait_for_server(rospy.Duration(secs=2)):
+        raise Exception(f"Couldn't connect to {controller_name}")
+    rospy.loginfo(f"Found action server for {controller_name}")
+    joint_names = rospy.get_param(controller_name + "/joints")
+    rospy.loginfo(f"Joint names: {joint_names}")
+
+    return client, joint_names
+
+
+def send_traj(client: actionlib.SimpleActionClient, target_angles: List[float], joint_names: List[str]):
+    target = JointTrajectoryPoint()
+    target.positions = target_angles
+    target.time_from_start = rospy.Duration(5)  # seconds
+
+    goal = FollowJointTrajectoryGoal()
+    goal.trajectory.points.append(target)
+    goal.goal_time_tolerance = rospy.Duration(0.5)
+    goal.trajectory.joint_names = joint_names
+
+    client.send_goal(goal)
+    result = client.wait_for_result()
+    rospy.loginfo(f"Result: {result}")
+
+
+def exercise1():
+    client, joint_names = connect_client("/torso_controller")
+    target_angles = [0.3 for _ in joint_names]
+
+    send_traj(client, target_angles, joint_names)
+
+def exercise2():
+    client, joint_names = connect_client("/right_leg_controller")
+    target_angles = [0.0 for _ in joint_names]
+    target_angles[2] = deg_to_rad(-30)
+
+    send_traj(client, target_angles, joint_names)
+
+def exercise3():
+    client, joint_names = connect_client("/right_leg_controller")
+    target_angles = [0.0 for _ in joint_names]
+    target_angles[2] = deg_to_rad(-30)
+
+    send_traj(client, target_angles, joint_names)
+
+
+
+def main():
+    pass
+
+if __name__ == "__main__":
+    rospy.init_node("fk_runner", anonymous=True)
+
+    # weird fucking issue with wait_for_server, rostime has to be initialized first 
+    # https://answers.ros.org/question/10290/weird-behavior-when-instantiating-simpleactionclient-right-after-initializing-node-in-rospy/
+    while rospy.get_time() <= 0:
+        rospy.sleep(0.01)
+
+    # exercise1()
+    exercise2()

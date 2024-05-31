@@ -1,0 +1,4 @@
+<launch>
+  <include file="$(find reemc_gazebo)/launch/reemc_empty_world.launch"/>
+  <include file="$(find reemc_controller_configuration)/launch/joint_trajectory_controllers.launch"/>
+</launch>
