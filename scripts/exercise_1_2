@@ -5,6 +5,7 @@ import math
 import actionlib
 from typing import Tuple, List
 import time
+import random
 
 from control_msgs.msg import (
     FollowJointTrajectoryAction,
@@ -36,7 +37,7 @@ def connect_client(controller_name: str) -> Tuple[actionlib.SimpleActionClient, 
 def send_traj(client: actionlib.SimpleActionClient, target_angles: List[float], joint_names: List[str]):
     target = JointTrajectoryPoint()
     target.positions = target_angles
-    target.time_from_start = rospy.Duration(5)  # seconds
+    target.time_from_start = rospy.Duration(2)  # seconds
 
     goal = FollowJointTrajectoryGoal()
     goal.trajectory.points.append(target)
@@ -68,6 +69,12 @@ def exercise3():
 
     send_traj(client, target_angles, joint_names)
 
+def exercise4():
+    client, joint_names = connect_client("/right_leg_controller")
+    target_angles = [deg_to_rad(random.randint(0, 90)) for _ in joint_names]
+
+    send_traj(client, target_angles, joint_names)
+
 
 
 def main():
@@ -82,4 +89,5 @@ if __name__ == "__main__":
         rospy.sleep(0.01)
 
     # exercise1()
-    exercise2()
+    # exercise2()
+    exercise4()

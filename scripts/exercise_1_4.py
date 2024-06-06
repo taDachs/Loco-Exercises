@@ -13,6 +13,8 @@ import urdf_parser_py.urdf as urdf
 from dataclasses import dataclass
 
 ARM_LINK_NAMES = [
+    "torso_1_link",
+    "torso_2_link",
     "arm_right_1_link",
     "arm_right_2_link",
     "arm_right_3_link",
@@ -105,7 +107,7 @@ def main():
     print("Manipulability:")
     print(
         "\tRatio of the longest and shortest semi-axes of the manipulability ellipsoid (smaller "
-        "is better):  {mu_1}"
+        f"is better):  {mu_1}"
     )
     print(f"\tCondition Number (smaller_is_better): {mu_2}")
     print(f"\tVolume of the manipulability ellipsoid (larger is better): {mu_3}")
