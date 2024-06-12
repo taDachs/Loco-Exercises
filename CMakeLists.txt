@@ -157,6 +157,11 @@ include_directories(
 ## in contrast to setup.py, you can choose the destination
 catkin_install_python(PROGRAMS
   scripts/exercise_1_2
+  scripts/exercise_1_3.py
+  scripts/exercise_1_4.py
+  scripts/exercise_2_1.py
+  scripts/exercise_2_2.py
+  scripts/exercise_2_3.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
