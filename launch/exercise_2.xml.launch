@@ -6,6 +6,6 @@
   <node pkg="loco_exercises" type="exercise_2_1.py" name="com_visualizer"/>
   <node pkg="loco_exercises" type="exercise_2_2.py" name="cop_visualizer"/>
   <node pkg="loco_exercises" type="exercise_2_3.py" name="zmp_visualizer" output="screen"/>
-  <node name="rosbag_play" pkg="rosbag" type="play" args="$(find loco_exercises)/data/motion_only_odom_tf.bag --clock --loop" />
+  <node name="rosbag_play" pkg="rosbag" type="play" args="$(find loco_exercises)/data/motion_only_odom_tf.bag --clock --loop -r 0.5" />
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find loco_exercises)/rviz/exercise_2.rviz" output="screen" />
 </launch>

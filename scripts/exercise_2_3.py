@@ -8,14 +8,14 @@ import rospy
 from visualization_msgs.msg import Marker
 from typing import Dict, List, Deque
 
-from geometry_msgs.msg import TransformStamped, Pose, PointStamped, Point, WrenchStamped
+from geometry_msgs.msg import TransformStamped, Pose, PointStamped, Point, WrenchStamped, Vector3
 import tf2_geometry_msgs
 from ros_numpy import numpify, msgify
 import numpy as np
 import message_filters
 from dataclasses import dataclass, field
 from collections import deque
-from sensor_msgs.msg import JointState
+from sensor_msgs.msg import JointState, Imu
 
 import time
 
@@ -64,7 +64,7 @@ class ZMPVisualizer:
         self.robot: urdf.Robot = urdf.Robot.from_parameter_server()
 
         self.frame = rospy.get_param("~frame", "odom")
-        self.smoothing_window_size = rospy.get_param("~smoothing_window_size", 3)
+        self.smoothing_window_size = rospy.get_param("~smoothing_window_size", 4)
 
         self.joint_state_sub = rospy.Subscriber(
             "joint_states",
@@ -72,6 +72,14 @@ class ZMPVisualizer:
             callback=self.joint_states_callback,
             queue_size=1,
         )
+
+        self.joint_state_sub = rospy.Subscriber(
+            "base_imu",
+            Imu,
+            callback=self.imu_callback,
+            queue_size=1,
+        )
+
         self.exact_zmp_pub = rospy.Publisher("~/zmp/exact", PointStamped, queue_size=1)
         self.approximation_1_zmp_pub = rospy.Publisher(
             "~/zmp/approximation_1", PointStamped, queue_size=1
@@ -79,6 +87,8 @@ class ZMPVisualizer:
         self.approximation_2_zmp_pub = rospy.Publisher(
             "~/zmp/approximation_2", PointStamped, queue_size=1
         )
+        self.moment_pub = rospy.Publisher("~/moment", PointStamped, queue_size=1)
+        self.wrench_pub = rospy.Publisher("~/wrench", WrenchStamped, queue_size=1)
 
         self.last_P: np.ndarray = None
         self.last_L: np.ndarray = None
@@ -99,6 +109,8 @@ class ZMPVisualizer:
             ulink.v = (ulink.p - self.last_base_pose) / dt
             # ulink.w = self.compute_angular_velocity(self.last_base_orientation, ulink.R, dt)
 
+        self.forward_velocity(ulink)
+
         P = self.calc_P(ulink)
         L = self.calc_L(ulink)
 
@@ -114,6 +126,13 @@ class ZMPVisualizer:
         dt = timestamp.to_sec() - self.last_timestamp.to_sec()
         dP = (P - self.last_P) / dt
         dL = (L - self.last_L) / dt
+
+        wrench = WrenchStamped()
+        wrench.header.frame_id = self.frame
+        wrench.header.stamp = timestamp
+        wrench.wrench.force = msgify(Vector3, dP)
+        wrench.wrench.torque = msgify(Vector3, dL)
+        self.wrench_pub.publish(wrench)
 
         m, c = self.compute_com(ulink)
         p_z = self.calc_floor_height(ulink)
@@ -277,6 +296,34 @@ class ZMPVisualizer:
         omega = np.array([omega_x, omega_y, omega_z])
 
         return omega
+
+    def imu_callback(self, msg: Imu):
+        ulink = self.build_ulink({}, {})
+        m, com = self.compute_com(ulink)
+
+        try:
+            t: TransformStamped = self.buffer.lookup_transform(
+                self.frame, msg.header.frame_id, rospy.Time(0)
+            )
+        except tf2_ros.LookupException as e:
+            rospy.logerr(f"failed to lookup transform: {e}")
+            return
+
+        t: np.ndarray = numpify(t.transform)
+        accel = numpify(msg.linear_acceleration)
+        accel = t[:3, :3] @ accel
+
+        p_z = self.calc_floor_height(ulink)
+        p_x = com[0] - (com[2] - p_z) * accel[0] / accel[2]  # gravity already in imu measurement
+        p_y = com[1] - (com[2] - p_z) * accel[1] / accel[2]  # gravity already in imu measurement
+
+        zmp_msg = PointStamped()
+        zmp_msg.header.frame_id = self.frame
+        zmp_msg.header.stamp = msg.header.stamp
+        zmp_msg.point.x = p_x
+        zmp_msg.point.y = p_y
+        zmp_msg.point.z = p_z
+        self.approximation_2_zmp_pub.publish(zmp_msg)
 
 
 def main():

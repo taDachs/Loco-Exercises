@@ -19,9 +19,10 @@ class CoMVisualizer:
         self.listener = tf2_ros.TransformListener(self.buffer)
         self.robot: urdf.Robot = urdf.Robot.from_parameter_server()
 
-        self.frame = rospy.get_param("~frame", "base_link")
+        self.frame = rospy.get_param("~frame", "odom")
 
         self.com_pub = rospy.Publisher("~/com", PointStamped, queue_size=1)
+        self.projected_com_pub = rospy.Publisher("~/projected_com", PointStamped, queue_size=1)
         # self.timer = rospy.Timer(rospy.Duration(secs=1), self.timer_callback)
 
     def timer_callback(self, _=None):
@@ -77,6 +78,8 @@ class CoMVisualizer:
         com_point_stamped.header.stamp = rospy.Time.now()
         com_point_stamped.point = com_point
         self.com_pub.publish(com_point_stamped)
+        com_point_stamped.point.z = 0
+        self.projected_com_pub.publish(com_point_stamped)
 
 
 def main():
