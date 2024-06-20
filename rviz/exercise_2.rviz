@@ -803,7 +803,7 @@ Visualization Manager:
       Name: ZMP (Point Mass Approx)
       Queue Size: 10
       Radius: 0.05000000074505806
-      Topic: /zmp/approximation_2
+      Topic: /zmp/approximation_pendulum
       Unreliable: false
       Value: true
   Enabled: true
@@ -834,7 +834,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 1.6348994970321655
+      Distance: 4.260893821716309
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1

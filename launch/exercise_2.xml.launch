@@ -3,9 +3,15 @@
   <param name="robot_description" command="$(find xacro)/xacro '$(find reemc_description)/robots/reemc_full_ft_hey5.urdf.xacro'"/>
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="true">
   </node>
+  <node pkg="loco_exercises" type="imu_smoother_node" name="imu_smoother">
+    <remap from="imu" to="base_imu" />
+    <param name="window_size" value="9" type="int" />
+  </node>
   <node pkg="loco_exercises" type="exercise_2_1.py" name="com_visualizer"/>
   <node pkg="loco_exercises" type="exercise_2_2.py" name="cop_visualizer"/>
-  <node pkg="loco_exercises" type="exercise_2_3.py" name="zmp_visualizer" output="screen"/>
+  <node pkg="loco_exercises" type="exercise_2_3.py" name="zmp_visualizer" output="screen">
+    <remap from="base_imu" to="/imu_smoother/smoothed_imu" />
+  </node>
   <node name="rosbag_play" pkg="rosbag" type="play" args="$(find loco_exercises)/data/motion_only_odom_tf.bag --clock --loop -r 0.5" />
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find loco_exercises)/rviz/exercise_2.rviz" output="screen" />
 </launch>

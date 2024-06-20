@@ -85,7 +85,7 @@ class ZMPVisualizer:
             "~/zmp/approximation_1", PointStamped, queue_size=1
         )
         self.approximation_2_zmp_pub = rospy.Publisher(
-            "~/zmp/approximation_2", PointStamped, queue_size=1
+            "~/zmp/approximation_pendulum", PointStamped, queue_size=1
         )
         self.moment_pub = rospy.Publisher("~/moment", PointStamped, queue_size=1)
         self.wrench_pub = rospy.Publisher("~/wrench", WrenchStamped, queue_size=1)
@@ -99,14 +99,18 @@ class ZMPVisualizer:
         self.zmp_history: List[np.ndarray] = []
 
     def joint_states_callback(self, msg: JointState):
+        dq = np.array(msg.velocity)
+        dq = np.clip(dq, -2, 2)
         q = dict(zip(msg.name, msg.position))
-        dq = dict(zip(msg.name, msg.velocity))
+        dq = dict(zip(msg.name, dq))
         timestamp = msg.header.stamp
         ulink = self.build_ulink(q, dq)
 
         if self.last_timestamp is not None and self.last_base_pose is not None:
             dt = timestamp.to_sec() - self.last_timestamp.to_sec()
             ulink.v = (ulink.p - self.last_base_pose) / dt
+            if np.linalg.norm(ulink.v) > 1:
+                ulink.v /= np.linalg.norm(ulink.v)
             # ulink.w = self.compute_angular_velocity(self.last_base_orientation, ulink.R, dt)
 
         self.forward_velocity(ulink)
@@ -125,7 +129,11 @@ class ZMPVisualizer:
 
         dt = timestamp.to_sec() - self.last_timestamp.to_sec()
         dP = (P - self.last_P) / dt
+        if np.linalg.norm(dP) > 100:
+            dP /= np.linalg.norm(dP) * 100
         dL = (L - self.last_L) / dt
+        if np.linalg.norm(dL) > 100:
+            dL /= np.linalg.norm(dL) * 100
 
         wrench = WrenchStamped()
         wrench.header.frame_id = self.frame
@@ -313,9 +321,19 @@ class ZMPVisualizer:
         accel = numpify(msg.linear_acceleration)
         accel = t[:3, :3] @ accel
 
+        gravity_vector = np.array((0, 0, -G))
+
+        # remove gravity (points down in this frame)
+        accel -= gravity_vector
+
+        # low pass filter, max acceleration of human during walking (except gravity) is about 1m/s^2 according to chatgpt
+        # usain bolt reaces about one g while running
+        if np.linalg.norm(accel) > 1:
+            accel /= np.linalg.norm(accel)
+
         p_z = self.calc_floor_height(ulink)
-        p_x = com[0] - (com[2] - p_z) * accel[0] / accel[2]  # gravity already in imu measurement
-        p_y = com[1] - (com[2] - p_z) * accel[1] / accel[2]  # gravity already in imu measurement
+        p_x = com[0] - (com[2] - p_z) * accel[0] / (accel[2] + G)
+        p_y = com[1] - (com[2] - p_z) * accel[1] / (accel[2] + G)
 
         zmp_msg = PointStamped()
         zmp_msg.header.frame_id = self.frame
